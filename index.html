@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>VSC Advance Calculator</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .input-container { margin-bottom: 15px; }
+        .input-container label { display: block; margin-bottom: 5px; }
+        .input-row { display: flex; align-items: center; margin-bottom: 10px; }
+        .input-row input[type=range] { flex: 1; margin-right: 10px; }
+        .input-row input[type=number] { width: 80px; }
+        h2 { margin-top: 30px; }
+        button { margin-top: 10px; padding: 5px 10px; }
+    </style>
+</head>
+<body>
+    <img src="assets/logo.png" alt="VSC Advance Logo" style="max-width: 250px;">
+    <h1>VSC Advance Calculator</h1>
+
+    <!-- New and Used Sales and Penetration Inputs -->
+    <div class="input-container">
+        <label>Monthly New Vehicle Sales:</label>
+        <div class="input-row">
+            <input type="range" id="newSales" min="0" max="500" value="0" step="1" oninput="newSalesNumber.value=this.value; updateVolumeFromPen();">
+            <input type="number" id="newSalesNumber" min="0" max="500" value="0" oninput="newSales.value=this.value; updateVolumeFromPen();">
+        </div>
+    </div>
+    <div class="input-container">
+        <label>New Penetration %:</label>
+        <div class="input-row">
+            <input type="range" id="newPen" min="0" max="100" value="0" step="1" oninput="newPenNumber.value=this.value; updateVolumeFromPen();">
+            <input type="number" id="newPenNumber" min="0" max="100" value="0" oninput="newPen.value=this.value; updateVolumeFromPen();">
+        </div>
+    </div>
+    <div class="input-container">
+        <label>Monthly Used Vehicle Sales:</label>
+        <div class="input-row">
+            <input type="range" id="usedSales" min="0" max="500" value="0" step="1" oninput="usedSalesNumber.value=this.value; updateVolumeFromPen();">
+            <input type="number" id="usedSalesNumber" min="0" max="500" value="0" oninput="usedSales.value=this.value; updateVolumeFromPen();">
+        </div>
+    </div>
+    <div class="input-container">
+        <label>Used Penetration %:</label>
+        <div class="input-row">
+            <input type="range" id="usedPen" min="0" max="100" value="0" step="1" oninput="usedPenNumber.value=this.value; updateVolumeFromPen();">
+            <input type="number" id="usedPenNumber" min="0" max="100" value="0" oninput="usedPen.value=this.value; updateVolumeFromPen();">
+        </div>
+    </div>
+    <button onclick="updateVolumeFromPen()">Update Contract Volumes from Sales & Penetration</button>
+
+    <!-- Contract Volume Sliders (manual entry allowed) -->
+    <div class="input-container">
+        <label>Monthly New Contract Volume:</label>
+        <div class="input-row">
+            <input type="range" id="newContracts" min="0" max="500" value="0" step="1" oninput="newContractsNumber.value=this.value; updateTotals();">
+            <input type="number" id="newContractsNumber" min="0" max="500" value="0" oninput="newContracts.value=this.value; updateTotals();">
+        </div>
+    </div>
+    <div class="input-container">
+        <label>Monthly Used Contract Volume:</label>
+        <div class="input-row">
+            <input type="range" id="usedContracts" min="0" max="500" value="0" step="1" oninput="usedContractsNumber.value=this.value; updateTotals();">
+            <input type="number" id="usedContractsNumber" min="0" max="500" value="0" oninput="usedContracts.value=this.value; updateTotals();">
+        </div>
+    </div>
+
+    <!-- Term Slider -->
+    <div class="input-container">
+        <label>Advance Term (months):</label>
+        <div class="input-row">
+            <input type="range" id="term" min="1" max="60" value="24" step="1" oninput="termNumber.value=this.value; updateTotals();">
+            <input type="number" id="termNumber" min="1" max="60" value="24" oninput="term.value=this.value; updateTotals();">
+        </div>
+    </div>
+
+    <!-- Over-remit Sliders -->
+    <div class="input-container">
+        <label>New over-remit ($ per contract on 100% over remit):</label>
+        <div class="input-row">
+            <input type="range" id="newOverRemit" min="0" max="2000" step="10" value="0" oninput="newOverRemitNumber.value=this.value; updateTotals();">
+            <input type="number" id="newOverRemitNumber" min="0" max="2000" step="10" value="0" oninput="newOverRemit.value=this.value; updateTotals();">
+        </div>
+    </div>
+    <div class="input-container">
+        <label>Used over-remit ($ per contract):</label>
+        <div class="input-row">
+            <input type="range" id="usedOverRemit" min="0" max="2000" step="10" value="0" oninput="usedOverRemitNumber.value=this.value; updateTotals();">
+            <input type="number" id="usedOverRemitNumber" min="0" max="2000" step="10" value="0" oninput="usedOverRemit.value=this.value; updateTotals();">
+        </div>
+    </div>
+
+    <!-- Open Balance Slider -->
+    <div class="input-container">
+        <label>Current Open Advance Balance:</label>
+        <div class="input-row">
+            <input type="range" id="openBalance" min="0" max="1000000" step="1000" value="0" oninput="openBalanceNumber.value=this.value; updateTotals();">
+            <input type="number" id="openBalanceNumber" min="0" max="1000000" step="1000" value="0" oninput="openBalance.value=this.value; updateTotals();">
+        </div>
+    </div>
+
+    <h2>Results</h2>
+    <p>New Advance: $<span id="newAdvance">0</span></p>
+    <p>Used Advance: $<span id="usedAdvance">0</span></p>
+    <p>Total Gross Advance: $<span id="totalAdvance">0</span></p>
+    <p>Advance Fee %: <span id="feePercent">0%</span></p>
+    <p>Advance Fee $: $<span id="feeAmount">0</span></p>
+    <p>Net Advance after Fee: $<span id="netAdvance">0</span></p>
+    <p><strong>Less Open Balance: $<span id="openBalanceOut">0</span></strong></p>
+    <p><strong>Final Net Advance: $<span id="finalNet">0</span></strong></p>
+
+<script>
+function updateVolumeFromPen() {
+    let newSales = parseFloat(document.getElementById('newSales').value) || 0;
+    let newPen = parseFloat(document.getElementById('newPen').value) || 0;
+    let usedSales = parseFloat(document.getElementById('usedSales').value) || 0;
+    let usedPen = parseFloat(document.getElementById('usedPen').value) || 0;
+    let newContracts = Math.round(newSales * newPen / 100);
+    let usedContracts = Math.round(usedSales * usedPen / 100);
+    document.getElementById('newContracts').value = newContracts;
+    document.getElementById('newContractsNumber').value = newContracts;
+    document.getElementById('usedContracts').value = usedContracts;
+    document.getElementById('usedContractsNumber').value = usedContracts;
+    updateTotals();
+}
+
+function updateTotals() {
+    let term = parseFloat(document.getElementById('term').value) || 0;
+    let newContracts = parseFloat(document.getElementById('newContracts').value) || 0;
+    let usedContracts = parseFloat(document.getElementById('usedContracts').value) || 0;
+    let newOverRemit = parseFloat(document.getElementById('newOverRemit').value) || 0;
+    let usedOverRemit = parseFloat(document.getElementById('usedOverRemit').value) || 0;
+    let openBalance = parseFloat(document.getElementById('openBalance').value) || 0;
+
+    // Gross advances
+    let newAdvance = term * newContracts * newOverRemit;
+    let usedAdvance = term * usedContracts * usedOverRemit;
+    let totalAdvance = newAdvance + usedAdvance;
+
+    // Fee schedule (Exhibit A-1)
+    let feePercent = 0;
+    if (term >= 18 && term <= 23) feePercent = 1.5;
+    else if (term >= 24 && term <= 29) feePercent = 2.0;
+    else if (term >= 30 && term <= 35) feePercent = 2.5;
+    else if (term >= 36) feePercent = 3.0;
+
+    let feeAmount = totalAdvance * feePercent / 100;
+    let netAdvance = totalAdvance - feeAmount;
+    let finalNet = netAdvance - openBalance;
+
+    document.getElementById('newAdvance').textContent = newAdvance.toLocaleString(undefined,{maximumFractionDigits:0});
+    document.getElementById('usedAdvance').textContent = usedAdvance.toLocaleString(undefined,{maximumFractionDigits:0});
+    document.getElementById('totalAdvance').textContent = totalAdvance.toLocaleString(undefined,{maximumFractionDigits:0});
+    document.getElementById('feePercent').textContent = feePercent + '%';
+    document.getElementById('feeAmount').textContent = feeAmount.toLocaleString(undefined,{maximumFractionDigits:0});
+    document.getElementById('netAdvance').textContent = netAdvance.toLocaleString(undefined,{maximumFractionDigits:0});
+    document.getElementById('openBalanceOut').textContent = openBalance.toLocaleString(undefined,{maximumFractionDigits:0});
+    document.getElementById('finalNet').textContent = finalNet.toLocaleString(undefined,{maximumFractionDigits:0});
+}
+
+// Initialize default values
+updateTotals();
+</script>
+
+</body>
+</html>
