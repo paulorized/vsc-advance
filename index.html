@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>VSC Advance Calculator (Toggle PPM & Ancillary)</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <title>VSC Advance Calculator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root { --gap: 10px; --pad: 14px; }
     * { box-sizing: border-box; }
@@ -15,39 +15,35 @@
     .row label { font-weight: 600; }
     input[type=range] { width: 100%; }
     input[type=number], input[readonly], input[type=text] { width: 120px; padding: 8px; border: 1px solid #ccc; border-radius: 8px; }
-    button { padding: 8px 10px; border: 0; border-radius: 10px; background: #111; color: #fff; cursor: pointer; font-weight: 700; }
+    button { padding: 8px 12px; border: 0; border-radius: 10px; background: #111; color: #fff; cursor: pointer; font-weight: 700; }
     button:active { transform: translateY(1px); }
     .muted { color: #666; font-size: 12px; margin-top: -4px; }
     .two { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap); }
     .outputs p { margin: 6px 0; }
     .hr { height: 1px; background: #eee; margin: 10px 0; }
-    .switch { position: relative; display: inline-block; width: 46px; height: 26px; vertical-align: middle; }
-    .switch input { opacity: 0; width: 0; height: 0; }
-    .slider { position: absolute; cursor: pointer; inset: 0; background: #bbb; transition: .2s; border-radius: 999px; }
-    .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; top: 3px; background: white; transition: .2s; border-radius: 50%; }
-    input:checked + .slider { background: #111; }
-    input:checked + .slider:before { transform: translateX(20px); }
-    .badge { display:inline-block; padding: 4px 8px; border-radius: 999px; background:#f2f2f2; font-size:12px; font-weight:700; margin-left:8px;}
-    .hidden { display: none; }
+
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: right; }
+    th { background: #f8f8f8; text-align: center; }
+    td:first-child, th:first-child { text-align: center; }
+
+    /* Print styles */
+    @media print {
+      .no-print { display: none !important; }
+      body { margin: 0.5in; }
+      .section { break-inside: avoid; }
+    }
   </style>
 </head>
 <body>
 
-  <h1>VSC Advance Calculator</h1>
-  <p class="muted">Original VSC (New/Used) with an optional PPM & Ancillary module you can toggle on/off. Numbers are synced between sliders and inputs.</p>
-
-  <!-- TOGGLE -->
-  <div class="section">
-    <h2 style="display:flex;align-items:center;gap:12px;">
-      PPM & Ancillary Module
-      <label class="switch">
-        <input type="checkbox" id="includeExtras" checked onchange="toggleExtras(); calculate();">
-        <span class="slider"></span>
-      </label>
-      <span id="extrasStatus" class="badge">Included in math</span>
-    </h2>
-    <p class="muted">When off: PPM & Ancillary fields are hidden and excluded from all calculations (your values are preserved for when you turn it back on).</p>
+  <div class="no-print" style="display:flex;gap:10px;align-items:center;margin-bottom:10px;">
+    <button onclick="window.print()">Export to PDF</button>
+    <span class="muted">Tip: The button opens your browser’s print dialog. Choose “Save as PDF”.</span>
   </div>
+
+  <h1>VSC Advance Calculator</h1>
+  <p class="muted">VSC (New/Used) only. Type numbers or use sliders—everything stays in sync.</p>
 
   <!-- SALES & VSC PENETRATION -->
   <div class="section">
@@ -81,7 +77,7 @@
       <label>Total Monthly Vehicle Sales</label>
       <div style="display:flex; gap:8px;">
         <input type="text" id="totalSalesOut" value="140" readonly>
-        <button type="button" onclick="updateFromPenVSC()">Set VSC Volumes from Pen%</button>
+        <button class="no-print" type="button" onclick="updateFromPenVSC()">Set VSC Volumes from Pen%</button>
       </div>
       <span></span>
     </div>
@@ -117,60 +113,6 @@
     </div>
   </div>
 
-  <!-- PPM & ANC: Togglable Section -->
-  <div id="extrasSection" class="section">
-    <h2>PPM & Ancillary (not split by New/Used)</h2>
-
-    <div class="row">
-      <label>PPM Penetration % (of total sales)</label>
-      <div style="display:flex; gap:8px;">
-        <input type="range" id="ppmPen" min="0" max="100" step="0.1" value="20" oninput="sync('ppmPen'); updateFromPenPpmAnc();">
-        <input type="number" id="ppmPenNum" min="0" max="100" step="0.1" value="20" oninput="syncBack('ppmPen'); updateFromPenPpmAnc();">
-        <button type="button" onclick="updateFromPenPpmAnc()">Set PPM Volume from Pen%</button>
-      </div>
-      <span></span>
-    </div>
-
-    <div class="row">
-      <label>PPM Monthly Contract Volume</label>
-      <input type="range" id="ppmContracts" min="0" max="5000" step="1" value="28" oninput="sync('ppmContracts'); calculate();">
-      <input type="number" id="ppmContractsNum" min="0" max="1000000" step="1" value="28" oninput="syncBack('ppmContracts'); calculate();">
-    </div>
-
-    <div class="row">
-      <label>PPM Over-remit ($ per contract)</label>
-      <input type="range" id="ppmOverRemit" min="0" max="3000" step="10" value="75" oninput="sync('ppmOverRemit'); calculate();">
-      <input type="number" id="ppmOverRemitNum" min="0" max="1000000" step="1" value="75" oninput="syncBack('ppmOverRemit'); calculate();">
-    </div>
-
-    <div class="hr"></div>
-
-    <div class="row">
-      <label>Ancillary Penetration % (of total sales)</label>
-      <div style="display:flex; gap:8px;">
-        <input type="range" id="ancPen" min="0" max="100" step="0.1" value="35" oninput="sync('ancPen'); updateFromPenPpmAnc();">
-        <input type="number" id="ancPenNum" min="0" max="100" step="0.1" value="35" oninput="syncBack('ancPen'); updateFromPenPpmAnc();">
-        <button type="button" onclick="updateFromPenPpmAnc()">Set Ancillary Volume from Pen%</button>
-      </div>
-      <span></span>
-    </div>
-
-    <div class="row">
-      <label>Ancillary Monthly Contract Volume</label>
-      <input type="range" id="ancContracts" min="0" max="5000" step="1" value="49" oninput="sync('ancContracts'); calculate();">
-      <input type="number" id="ancContractsNum" min="0" max="1000000" step="1" value="49" oninput="syncBack('ancContracts'); calculate();">
-    </div>
-
-    <div class="row">
-      <label>Ancillary Over-remit ($ per contract)</label>
-      <input type="range" id="ancOverRemit" min="0" max="3000" step="10" value="60" oninput="sync('ancOverRemit'); calculate();">
-      <input type="number" id="ancOverRemitNum" min="0" max="1000000" step="1" value="60" oninput="syncBack('ancOverRemit'); calculate();">
-    </div>
-
-    <p class="muted" id="ppmPenNow">Current PPM Pen% (from contracts / total sales): —</p>
-    <p class="muted" id="ancPenNow">Current Ancillary Pen% (from contracts / total sales): —</p>
-  </div>
-
   <!-- TERM / OPEN BALANCE -->
   <div class="section">
     <h2>Advance Term & Open Balance</h2>
@@ -200,11 +142,9 @@
       <div>
         <p>VSC Advance — New: $<span id="advNew">0</span></p>
         <p>VSC Advance — Used: $<span id="advUsed">0</span></p>
-        <p id="ppmLine">PPM Advance: $<span id="advPPM">0</span></p>
-        <p id="ancLine">Ancillary Advance: $<span id="advANC">0</span></p>
       </div>
       <div>
-        <p><strong>Gross Advance (All)</strong>: $<span id="grossAll">0</span></p>
+        <p><strong>Gross Advance</strong>: $<span id="grossAll">0</span></p>
         <p>Advance Fee %: <span id="feePct">0%</span></p>
         <p>Advance Fee $: $<span id="feeAmt">0</span></p>
         <p><strong>Net After Fee</strong>: $<span id="netAfterFee">0</span></p>
@@ -214,7 +154,27 @@
     </div>
   </div>
 
+  <!-- FIXED TERMS TABLE (always visible) -->
+  <div class="section">
+    <h2>Quick View — Fixed Terms</h2>
+    <p class="muted">Uses your current VSC volumes and $/contract, regardless of the selected term above.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Term (mo)</th>
+          <th>Gross Advance</th>
+          <th>Fee %</th>
+          <th>Fee $</th>
+          <th>Net After Fee</th>
+          <th>Final Net (less Open Bal)</th>
+        </tr>
+      </thead>
+      <tbody id="fixedTermsBody"></tbody>
+    </table>
+  </div>
+
 <script>
+/* ---------- helpers ---------- */
 function val(id){ return parseFloat(document.getElementById(id).value) || 0; }
 function setVal(id, v){ document.getElementById(id).value = v; }
 function sync(id){ setVal(id + 'Num', document.getElementById(id).value); }
@@ -243,60 +203,59 @@ function updateFromPenVSC() {
   calculate();
 }
 
-function updateFromPenPpmAnc() {
-  const total = updateTotalsSales();
-  const ppmContracts = Math.round(total * val('ppmPen') / 100);
-  const ancContracts = Math.round(total * val('ancPen') / 100);
-  setVal('ppmContracts', ppmContracts); setVal('ppmContractsNum', ppmContracts);
-  setVal('ancContracts', ancContracts); setVal('ancContractsNum', ancContracts);
-  calculate();
+/* ---------- core math ---------- */
+function computeForTerm(term, openBalance, monthlyNew, monthlyUsed) {
+  const gross = term * (monthlyNew + monthlyUsed);
+  const pct = feePct(term);
+  const fee = gross * (pct / 100);
+  const netAfterFee = gross - fee;
+  const finalNet = Math.max(0, netAfterFee - openBalance);
+  return { gross, pct, fee, netAfterFee, finalNet };
 }
 
-function calculatePenNow(contracts, totalSales) {
-  if (totalSales <= 0) return 0;
-  return (contracts / totalSales) * 100;
-}
-
-function toggleExtras(){
-  const on = document.getElementById('includeExtras').checked;
-  document.getElementById('extrasSection').classList.toggle('hidden', !on);
-  document.getElementById('extrasStatus').textContent = on ? 'Included in math' : 'Excluded from math';
-  document.getElementById('ppmLine').style.display = on ? '' : 'none';
-  document.getElementById('ancLine').style.display = on ? '' : 'none';
-  calculate();
-}
-
-function calculate() {
-  const term = val('term');
+function updateFixedTermTable() {
   const openBalance = val('openBal');
-  const includeExtras = document.getElementById('includeExtras').checked;
-
-  // VSC buckets
   const monthlyNew = val('newContracts') * val('newOverRemit');
   const monthlyUsed = val('usedContracts') * val('usedOverRemit');
 
-  // PPM & Anc buckets (conditionally included)
-  const monthlyPPM = includeExtras ? (val('ppmContracts') * val('ppmOverRemit')) : 0;
-  const monthlyANC = includeExtras ? (val('ancContracts') * val('ancOverRemit')) : 0;
+  const terms = [12, 18, 24, 20, 26]; // Always show these, by request
+  const tbody = document.getElementById('fixedTermsBody');
+  tbody.innerHTML = '';
 
-  // Advances
+  terms.forEach(t => {
+    const { gross, pct, fee, netAfterFee, finalNet } = computeForTerm(t, openBalance, monthlyNew, monthlyUsed);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${t}</td>
+      <td>$${gross.toLocaleString(undefined,{maximumFractionDigits:0})}</td>
+      <td>${pct}%</td>
+      <td>$${fee.toLocaleString(undefined,{maximumFractionDigits:0})}</td>
+      <td>$${netAfterFee.toLocaleString(undefined,{maximumFractionDigits:0})}</td>
+      <td>$${finalNet.toLocaleString(undefined,{maximumFractionDigits:0})}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+/* ---------- calculate + update UI ---------- */
+function calculate() {
+  const term = val('term');
+  const openBalance = val('openBal');
+
+  const monthlyNew = val('newContracts') * val('newOverRemit');
+  const monthlyUsed = val('usedContracts') * val('usedOverRemit');
+
   const advNew = term * monthlyNew;
   const advUsed = term * monthlyUsed;
-  const advPPM = term * monthlyPPM;
-  const advANC = term * monthlyANC;
-
-  const grossAll = advNew + advUsed + advPPM + advANC;
+  const grossAll = advNew + advUsed;
 
   const pct = feePct(term);
   const fee = grossAll * (pct / 100);
   const netAfterFee = grossAll - fee;
   const finalNet = Math.max(0, netAfterFee - openBalance);
 
-  // Outputs
   document.getElementById('advNew').textContent = advNew.toLocaleString(undefined,{maximumFractionDigits:0});
   document.getElementById('advUsed').textContent = advUsed.toLocaleString(undefined,{maximumFractionDigits:0});
-  document.getElementById('advPPM').textContent = advPPM.toLocaleString(undefined,{maximumFractionDigits:0});
-  document.getElementById('advANC').textContent = advANC.toLocaleString(undefined,{maximumFractionDigits:0});
   document.getElementById('grossAll').textContent = grossAll.toLocaleString(undefined,{maximumFractionDigits:0});
   document.getElementById('feePct').textContent = pct + '%';
   document.getElementById('feeAmt').textContent = fee.toLocaleString(undefined,{maximumFractionDigits:0});
@@ -304,21 +263,12 @@ function calculate() {
   document.getElementById('openBalOut').textContent = openBalance.toLocaleString(undefined,{maximumFractionDigits:0});
   document.getElementById('finalNet').textContent = finalNet.toLocaleString(undefined,{maximumFractionDigits:0});
 
-  // live pen% readouts for extras (only if visible)
-  const total = updateTotalsSales();
-  if (includeExtras) {
-    document.getElementById('ppmPenNow').textContent =
-      'Current PPM Pen% (from contracts / total sales): ' + calculatePenNow(val('ppmContracts'), total).toFixed(1) + '%';
-    document.getElementById('ancPenNow').textContent =
-      'Current Ancillary Pen% (from contracts / total sales): ' + calculatePenNow(val('ancContracts'), total).toFixed(1) + '%';
-  }
+  updateFixedTermTable();
 }
 
-// Initialize
+/* ---------- init ---------- */
 updateTotalsSales();
 updateFromPenVSC();
-updateFromPenPpmAnc();
-toggleExtras();
 calculate();
 </script>
 
