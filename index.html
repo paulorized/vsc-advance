@@ -21,17 +21,28 @@
     .two { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap); }
     .outputs p { margin: 6px 0; }
     .hr { height: 1px; background: #eee; margin: 10px 0; }
-
     table { width: 100%; border-collapse: collapse; }
     th, td { border: 1px solid #ddd; padding: 8px; text-align: right; }
     th { background: #f8f8f8; text-align: center; }
     td:first-child, th:first-child { text-align: center; }
+
+    /* Footer watermark */
+    .powered {
+      position: fixed;
+      right: 14px;
+      bottom: 10px;
+      font-size: 12px;
+      color: #bbb;
+      user-select: none;
+      pointer-events: none;
+    }
 
     /* Print styles */
     @media print {
       .no-print { display: none !important; }
       body { margin: 0.5in; }
       .section { break-inside: avoid; }
+      .powered { color: #ddd; }
     }
   </style>
 </head>
@@ -51,8 +62,8 @@
 
     <div class="row">
       <label>Monthly New Vehicle Sales</label>
-      <input type="range" id="newSales" min="0" max="2000" step="1" value="80" oninput="sync('newSales'); updateFromPenVSC();">
-      <input type="number" id="newSalesNum" min="0" max="100000" step="1" value="80" oninput="syncBack('newSales'); updateFromPenVSC();">
+      <input type="range" id="newSales" min="0" max="1000" step="1" value="80" oninput="sync('newSales'); updateFromPenVSC();">
+      <input type="number" id="newSalesNum" min="0" step="1" value="80" oninput="syncBack('newSales'); updateFromPenVSC();">
     </div>
 
     <div class="row">
@@ -63,8 +74,8 @@
 
     <div class="row">
       <label>Monthly Used Vehicle Sales</label>
-      <input type="range" id="usedSales" min="0" max="2000" step="1" value="60" oninput="sync('usedSales'); updateFromPenVSC();">
-      <input type="number" id="usedSalesNum" min="0" max="100000" step="1" value="60" oninput="syncBack('usedSales'); updateFromPenVSC();">
+      <input type="range" id="usedSales" min="0" max="1000" step="1" value="60" oninput="sync('usedSales'); updateFromPenVSC();">
+      <input type="number" id="usedSalesNum" min="0" step="1" value="60" oninput="syncBack('usedSales'); updateFromPenVSC();">
     </div>
 
     <div class="row">
@@ -90,26 +101,26 @@
 
     <div class="row">
       <label>VSC Monthly Contract Volume — New</label>
-      <input type="range" id="newContracts" min="0" max="5000" step="1" value="24" oninput="sync('newContracts'); calculate();">
-      <input type="number" id="newContractsNum" min="0" max="1000000" step="1" value="24" oninput="syncBack('newContracts'); calculate();">
+      <input type="range" id="newContracts" min="0" max="1000" step="1" value="24" oninput="sync('newContracts'); calculate();">
+      <input type="number" id="newContractsNum" min="0" step="1" value="24" oninput="syncBack('newContracts'); calculate();">
     </div>
 
     <div class="row">
       <label><strong>New over-remit</strong> ($ per contract on <strong>100% over-remit</strong>)</label>
-      <input type="range" id="newOverRemit" min="0" max="3000" step="10" value="200" oninput="sync('newOverRemit'); calculate();">
-      <input type="number" id="newOverRemitNum" min="0" max="1000000" step="1" value="200" oninput="syncBack('newOverRemit'); calculate();">
+      <input type="range" id="newOverRemit" min="0" max="2000" step="10" value="200" oninput="sync('newOverRemit'); calculate();">
+      <input type="number" id="newOverRemitNum" min="0" step="1" value="200" oninput="syncBack('newOverRemit'); calculate();">
     </div>
 
     <div class="row">
       <label>VSC Monthly Contract Volume — Used</label>
-      <input type="range" id="usedContracts" min="0" max="5000" step="1" value="15" oninput="sync('usedContracts'); calculate();">
-      <input type="number" id="usedContractsNum" min="0" max="1000000" step="1" value="15" oninput="syncBack('usedContracts'); calculate();">
+      <input type="range" id="usedContracts" min="0" max="1000" step="1" value="15" oninput="sync('usedContracts'); calculate();">
+      <input type="number" id="usedContractsNum" min="0" step="1" value="15" oninput="syncBack('usedContracts'); calculate();">
     </div>
 
     <div class="row">
       <label>Over-remit per contract — Used</label>
-      <input type="range" id="usedOverRemit" min="0" max="3000" step="10" value="150" oninput="sync('usedOverRemit'); calculate();">
-      <input type="number" id="usedOverRemitNum" min="0" max="1000000" step="1" value="150" oninput="syncBack('usedOverRemit'); calculate();">
+      <input type="range" id="usedOverRemit" min="0" max="2000" step="10" value="150" oninput="sync('usedOverRemit'); calculate();">
+      <input type="number" id="usedOverRemitNum" min="0" step="1" value="150" oninput="syncBack('usedOverRemit'); calculate();">
     </div>
   </div>
 
@@ -126,7 +137,7 @@
     <div class="row">
       <label>Current Open Advance Balance ($)</label>
       <input type="range" id="openBal" min="0" max="5000000" step="1000" value="0" oninput="sync('openBal'); calculate();">
-      <input type="number" id="openBalNum" min="0" max="100000000" step="1" value="0" oninput="syncBack('openBal'); calculate();">
+      <input type="number" id="openBalNum" min="0" step="1" value="0" oninput="syncBack('openBal'); calculate();">
     </div>
 
     <div class="hr"></div>
@@ -173,12 +184,32 @@
     </table>
   </div>
 
+  <div class="powered">Powered by Paulo</div>
+
 <script>
 /* ---------- helpers ---------- */
 function val(id){ return parseFloat(document.getElementById(id).value) || 0; }
 function setVal(id, v){ document.getElementById(id).value = v; }
 function sync(id){ setVal(id + 'Num', document.getElementById(id).value); }
-function syncBack(id){ setVal(id, document.getElementById(id + 'Num').value); }
+/* When typing in number fields, keep the slider capped visually,
+   but allow manual overrides to drive calculations via eff(). */
+function syncBack(id){
+  const numEl = document.getElementById(id + 'Num');
+  const rangeEl = document.getElementById(id);
+  if (!numEl || !rangeEl) return;
+  const typed = parseFloat(numEl.value) || 0;
+  const max = rangeEl.max ? parseFloat(rangeEl.max) : Infinity;
+  rangeEl.value = Math.min(typed, isFinite(max) ? max : typed);
+}
+
+/* Use the larger of slider vs number field so manual entries can exceed slider caps */
+function eff(id){
+  const rEl = document.getElementById(id);
+  const nEl = document.getElementById(id + 'Num');
+  const r = rEl ? (parseFloat(rEl.value) || 0) : 0;
+  const n = nEl ? (parseFloat(nEl.value) || 0) : r;
+  return Math.max(r, n);
+}
 
 function feePct(term){
   if (term >= 36) return 3.0;
@@ -189,15 +220,15 @@ function feePct(term){
 }
 
 function updateTotalsSales() {
-  const total = val('newSales') + val('usedSales');
+  const total = eff('newSales') + eff('usedSales');
   setVal('totalSalesOut', total);
   return total;
 }
 
 function updateFromPenVSC() {
   updateTotalsSales();
-  const newContracts = Math.round(val('newSales') * val('newPen') / 100);
-  const usedContracts = Math.round(val('usedSales') * val('usedPen') / 100);
+  const newContracts = Math.round(eff('newSales') * eff('newPen') / 100);
+  const usedContracts = Math.round(eff('usedSales') * eff('usedPen') / 100);
   setVal('newContracts', newContracts); setVal('newContractsNum', newContracts);
   setVal('usedContracts', usedContracts); setVal('usedContractsNum', usedContracts);
   calculate();
@@ -214,9 +245,9 @@ function computeForTerm(term, openBalance, monthlyNew, monthlyUsed) {
 }
 
 function updateFixedTermTable() {
-  const openBalance = val('openBal');
-  const monthlyNew = val('newContracts') * val('newOverRemit');
-  const monthlyUsed = val('usedContracts') * val('usedOverRemit');
+  const openBalance = eff('openBal');
+  const monthlyNew = eff('newContracts') * eff('newOverRemit');
+  const monthlyUsed = eff('usedContracts') * eff('usedOverRemit');
 
   const terms = [12, 18, 24, 20, 26]; // Always show these, by request
   const tbody = document.getElementById('fixedTermsBody');
@@ -239,11 +270,11 @@ function updateFixedTermTable() {
 
 /* ---------- calculate + update UI ---------- */
 function calculate() {
-  const term = val('term');
-  const openBalance = val('openBal');
+  const term = eff('term');
+  const openBalance = eff('openBal');
 
-  const monthlyNew = val('newContracts') * val('newOverRemit');
-  const monthlyUsed = val('usedContracts') * val('usedOverRemit');
+  const monthlyNew = eff('newContracts') * eff('newOverRemit');
+  const monthlyUsed = eff('usedContracts') * eff('usedOverRemit');
 
   const advNew = term * monthlyNew;
   const advUsed = term * monthlyUsed;
